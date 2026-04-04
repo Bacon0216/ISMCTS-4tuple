@@ -18,7 +18,8 @@
  * * Supported commands: MOV?, /exit, SET?, WON, LST, DRW, etc.
  * @return int Exit status (0 for success).
  */
-int main() {
+int main() 
+{
 	// Seed random number generator
 	srand(time(NULL));
 
