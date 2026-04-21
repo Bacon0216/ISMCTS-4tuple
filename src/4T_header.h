@@ -68,7 +68,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
+#include <intrin.h>    // For __popcnt64 intrinsic (Windows)
 // Platform-specific includes for directory handling and timing
 #ifdef _WIN32
 #include <direct.h>
