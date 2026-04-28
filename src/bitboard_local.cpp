@@ -144,7 +144,7 @@ constexpr int EXIT_DIST_SCORE[EXIT_MAX_DIST + 1] = {8, 7, 6, 5, 4, 3, 2, 1};
 
 inline void stamp_feature_cache(uint64_t mask, int feature, int* feature_cache) {
 	while (mask) {
-		const int bb = __popcnt64(mask);
+		const int bb = __builtin_ctzll(mask);
 		const int p36 = MAP_64_TO_36[bb];
 		if (p36 >= 0) feature_cache[p36] = feature;
 		mask &= (mask - 1);
@@ -161,7 +161,7 @@ inline bool has_unknown_in_side(const int* pos, const int* color, int begin, int
 inline int exit_proximity_score(uint64_t blue_bits, const uint64_t* dist_masks) {
 	int score = 0;
 	for (int d = 0; d <= EXIT_MAX_DIST; ++d) {
-		score += __popcnt64(blue_bits & dist_masks[d]) * EXIT_DIST_SCORE[d];
+		score += __builtin_popcountll(blue_bits & dist_masks[d]) * EXIT_DIST_SCORE[d];
 	}
 	return score;
 }
@@ -395,28 +395,28 @@ int GST::gen_all_move(int* move_arr) {
 		// North
 		m = (my_pieces >> 8) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst + 8]] << 4) | 0;
 			m &= m - 1;
 		}
 		// South
 		m = (my_pieces << 8) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst - 8]] << 4) | 3;
 			m &= m - 1;
 		}
 		// West
 		m = (my_pieces >> 1) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst + 1]] << 4) | 1;
 			m &= m - 1;
 		}
 		// East
 		m = (my_pieces << 1) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst - 1]] << 4) | 2;
 			m &= m - 1;
 		}
@@ -430,25 +430,25 @@ int GST::gen_all_move(int* move_arr) {
 
 		m = (my_pieces >> 8) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst + 8]] << 4) | 0;
 			m &= m - 1;
 		}
 		m = (my_pieces << 8) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst - 8]] << 4) | 3;
 			m &= m - 1;
 		}
 		m = (my_pieces >> 1) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst + 1]] << 4) | 1;
 			m &= m - 1;
 		}
 		m = (my_pieces << 1) & valid_targets;
 		while (m) {
-			const int bb_dst = __popcnt64(m);
+			const int bb_dst = __builtin_ctzll(m);
 			move_arr[count++] = (piece_board[MAP_64_TO_36[bb_dst - 1]] << 4) | 2;
 			m &= m - 1;
 		}

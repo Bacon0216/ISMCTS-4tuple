@@ -8,8 +8,7 @@
 #ifndef MCTS_HPP
 #define MCTS_HPP
 
-#include "4T_GST.hpp"
-#include "4T_header.h"
+#include "bitboard_local.hpp"
 #include "node.hpp"
 
 /**

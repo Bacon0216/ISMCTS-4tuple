@@ -8,7 +8,7 @@
 #ifndef ISMCTS_HPP
 #define ISMCTS_HPP
 
-#include "4T_GST.hpp"
+#include "bitboard_local.hpp"
 #include "node.hpp"
 
 /**
