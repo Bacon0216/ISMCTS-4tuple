@@ -41,6 +41,37 @@
 #pragma message("Compiling with argmax selection")
 #endif
 
+
+
+// ===============================
+// Magic Tuple Hash (ARM-friendly)
+// ===============================
+
+static constexpr uint64_t TUPLE_MAGIC = 0xA3C59AC3D1E4B7ULL;
+
+// pack 4 feature bytes into 32-bit key
+inline uint64_t build_tuple_key(int base_pos, const int* offset, const int* feature_cache)
+{
+    return
+        ((uint64_t)feature_cache[base_pos + offset[0]]      ) |
+        ((uint64_t)feature_cache[base_pos + offset[1]] << 2 ) |
+        ((uint64_t)feature_cache[base_pos + offset[2]] << 4) |
+        ((uint64_t)feature_cache[base_pos + offset[3]] << 6);
+}
+
+// magic hash → 8-bit index (0~255)
+inline int magic_encode(uint64_t key)
+{
+    return (int)((key * TUPLE_MAGIC) >> 56);
+}
+
+// 3 pattern LUTs (you can train or load later)
+float LUT_1x4[256];
+float LUT_2x2[256];
+float LUT_4x1[256];
+
+
+
 // ==========================================
 // Random Number Generator
 // ==========================================
@@ -869,7 +900,9 @@ float GST::get_weight(int base_pos, const int* offset, DATA& d, const int* featu
  * * Optimizations: LUT hoisted once (was re-checked 61× per call), inlined feature extraction.
  * * CRITICAL: Single pos loop (0→35) preserved for FP accumulation order parity.
  */
-float GST::compute_board_weight(DATA& d) {
+
+ /*
+ float GST::compute_board_weight(DATA& d) {
 	float total_weight = 0;
 
 	// 1. Create a fast L1 cache on stack
@@ -932,6 +965,88 @@ float GST::compute_board_weight(DATA& d) {
 	}
 
 	return total_weight / (float)TUPLE_NUM;
+}*/
+
+float GST::compute_board_weight(DATA& d)
+{
+    float total_weight = 0;
+
+    int feature_cache[ROW * COL];
+
+    // build feature cache (keep your original logic)
+    if (nowTurn == USER) {
+        for (int i = 0; i < ROW * COL; i++) {
+            feature_cache[i] = (board[i] < 0) ? 3 : board[i];
+        }
+    } else {
+        for (int i = 0; i < ROW * COL; i++) {
+            feature_cache[i] = (board[i] > 0) ? 3 : -board[i];
+        }
+    }
+
+	const float* lut;
+	if (nowTurn == USER) {
+		if (piece_nums[2] == 1)
+			lut = d.LUTwr_U_R1;
+		else if (piece_nums[1] == 1)
+			lut = d.LUTwr_U_B1;
+		else
+			lut = d.LUTwr_U;
+	} else {
+		if (piece_nums[0] == 1)
+			lut = d.LUTwr_E_R1;
+		else if (piece_nums[3] == 1)
+			lut = d.LUTwr_E_B1;
+		else
+			lut = d.LUTwr_E;
+	}
+
+    for (int pos = 0; pos < ROW * COL; pos++) {
+
+        int row = pos / COL;
+        int col = pos % COL;
+
+        // -------------------
+        // 1x4 horizontal
+        // -------------------
+        if (col <= 2) {
+            uint64_t key = build_tuple_key(pos, offset_1x4, feature_cache);
+            int f = magic_encode(key);
+
+            int loc = get_loc(pos, offset_1x4);
+            int idx = d.LUT_idx(d.trans[loc], f);
+
+            total_weight += lut[idx];
+        }
+
+        // -------------------
+        // 4x1 vertical
+        // -------------------
+        if (row <= 2) {
+            uint64_t key = build_tuple_key(pos, offset_4x1, feature_cache);
+            int f = magic_encode(key);
+
+            int loc = get_loc(pos, offset_4x1);
+            int idx = d.LUT_idx(d.trans[loc], f);
+
+            total_weight += lut[idx];
+        }
+
+        // -------------------
+        // 2x2 block
+        // -------------------
+        if (col <= 4 && row <= 4) {
+            uint64_t key = build_tuple_key(pos, offset_2x2, feature_cache);
+            int f = magic_encode(key);
+
+            int loc = get_loc(pos, offset_2x2);
+            int idx = d.LUT_idx(d.trans[loc], f);
+
+            total_weight += lut[idx];
+        }
+    }
+
+    return total_weight / (float)TUPLE_NUM;
 }
 
 /**
