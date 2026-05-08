@@ -901,7 +901,7 @@ float GST::get_weight(int base_pos, const int* offset, DATA& d, const int* featu
  * * CRITICAL: Single pos loop (0→35) preserved for FP accumulation order parity.
  */
 
- /*
+
  float GST::compute_board_weight(DATA& d) {
 	float total_weight = 0;
 
@@ -965,13 +965,21 @@ float GST::get_weight(int base_pos, const int* offset, DATA& d, const int* featu
 	}
 
 	return total_weight / (float)TUPLE_NUM;
-}*/
+}
 
+///Keep on Working
+/*
 float GST::compute_board_weight(DATA& d)
 {
     float total_weight = 0;
 
     int feature_cache[ROW * COL];
+
+	uint64_t enemy_occ = enemyRed | enemyBlue | enemyUnknown;
+	uint64_t f0 = userRed | enemy_occ;
+	uint64_t f1 = userBlue | enemy_occ;
+
+	
 
     // build feature cache (keep your original logic)
     if (nowTurn == USER) {
@@ -1047,7 +1055,7 @@ float GST::compute_board_weight(DATA& d)
     }
 
     return total_weight / (float)TUPLE_NUM;
-}
+}*/
 
 /**
  * @brief Selects the highest weighted move (Greedy Policy).
