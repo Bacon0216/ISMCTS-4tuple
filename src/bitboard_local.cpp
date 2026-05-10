@@ -548,7 +548,7 @@ void GST::do_move(int move) {
 	const uint64_t enemy_occ = enemyRed | enemyBlue | enemyUnknown;
 
 	if (nowTurn == USER) {
-		if (__builtin_expect(enemy_occ & dst_bit, 0)) {
+		if (__builtin_expect((enemy_occ & dst_bit) != 0, 0)) {
 			eaten = piece_board[dst_36];
 			if (enemyRed & dst_bit)
 				captured_class = 0;
@@ -558,7 +558,7 @@ void GST::do_move(int move) {
 				captured_class = 2;
 		}
 	} else {
-		if (__builtin_expect(user_occ & dst_bit, 0)) {
+		if (__builtin_expect((user_occ & dst_bit) != 0, 0)) {
 			eaten = piece_board[dst_36];
 			captured_class = 3;	 // General User class
 		}
