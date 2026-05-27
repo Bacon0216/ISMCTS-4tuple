@@ -19,7 +19,7 @@ constexpr int MCTS::dir_val[4];
  */
 MCTS::MCTS(int simulations) : simulations(simulations) {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	rng.seed(static_cast<unsigned int>(seed));
+	rng.seed(static_cast<unsigned int>(2));
 }
 
 /**
@@ -27,7 +27,7 @@ MCTS::MCTS(int simulations) : simulations(simulations) {
  */
 void MCTS::reset() {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	rng.seed(static_cast<unsigned int>(seed));
+	rng.seed(static_cast<unsigned int>(2));
 
 	Node::cleanup(root);
 }

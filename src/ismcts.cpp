@@ -19,7 +19,7 @@ constexpr int ISMCTS::dir_val[4];
  */
 ISMCTS::ISMCTS(int simulations) : simulations(simulations) {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	rng.seed(static_cast<unsigned int>(seed));
+	rng.seed(static_cast<unsigned int>(2));
 }
 
 /**
@@ -27,7 +27,7 @@ ISMCTS::ISMCTS(int simulations) : simulations(simulations) {
  */
 void ISMCTS::reset() {
 	auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-	rng.seed(static_cast<unsigned int>(seed));
+	rng.seed(static_cast<unsigned int>(2));
 
 	Node::cleanup(root);
 	arrangement_stats.clear();
